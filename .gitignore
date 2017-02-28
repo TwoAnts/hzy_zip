@@ -1,0 +1,6 @@
+*
+!.gitignore
+!*.h
+!*.c
+![Mm]akefile
+!README.md
