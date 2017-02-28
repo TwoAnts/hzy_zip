@@ -74,12 +74,12 @@ int zip(char *buffer, int len, char *zbuffer)
 			zu.flag.is_zip = 1;
 			zu.flag.is_short = 0;
 			zu.flag.num = c_num;
-			zbuffer[j++] = zu.byte;
-			zbuffer[j] = byte;
+			zbuffer[j++] = ~zu.byte;
+			zbuffer[j] = ~byte;
 		}
 		else
 		{
-			zbuffer[j] = byte;
+			zbuffer[j] = ~byte;
 		}
 		j++;
 		i++;
@@ -98,14 +98,14 @@ int unzip(char *zbuffer, int zlen, char *buffer, char *last)
 		zu.byte = *last;
 		//printf("%c %d\n", zbuffer[0], zu.flag.num);
 		for(c_num=zu.flag.num;c_num > 0;c_num--)
-			buffer[j++] = zbuffer[0];
+			buffer[j++] = ~zbuffer[0];
 		i++;
 	}
 	*last = 0;
 	
 	while(i < zlen)
 	{
-		zu.byte = zbuffer[i];
+		zu.byte = ~zbuffer[i];
 		if(!zu.flag.is_zip)
 		{
 			//printf("%c\n", zu.byte);
@@ -118,9 +118,9 @@ int unzip(char *zbuffer, int zlen, char *buffer, char *last)
 		}
 		else
 		{
-			//printf("%c %d\n", zbuffer[i+1], zu.flag.num);
+			//printf("%c %d\n", ~zbuffer[i+1], zu.flag.num);
 			for(c_num=zu.flag.num;c_num > 0;c_num--)
-				buffer[j++] = zbuffer[i+1];
+				buffer[j++] = ~zbuffer[i+1];
 			i += 2;
 		}
 	}
