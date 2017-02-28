@@ -2,7 +2,7 @@
 This is a compression program using c language. It is so simple and a little stupid. Just for fun.
 
 ##Compile
-`gcc hzy_zip.c -o hzy_zip`
+`gcc hzy_zip.c -o hzy_zip` or `make`
 
 ##Usage
 ```
