@@ -50,43 +50,36 @@ int zip(char *buffer, int len, char *zbuffer)
 {
 	int i = 0, j = 0;
 	int c_num;
+	char byte;
 	zunit zu;
 	while(i < len)
 	{
-		zu.byte = buffer[i];
 		c_num = 1;
 		while(i < len - 1 && c_num < (1<<6) && buffer[i] == buffer[i+1])
 		{
 			i++;
 			c_num++;
 		}
-		if(i == len - 1 && c_num < (1<<6) - 1 && buffer[i] == buffer[i+1])
+		
+		if(i == len - 1 && c_num < (1<<6) - 1 && buffer[i] == buffer[i-1])
 		{
-			i++;
 			c_num++;
 		}
-		//printf("%c %d\n", buffer[i], c_num);
-		if(c_num > 1)
+		byte = buffer[i];
+		zu.byte = byte;
+		//printf("%c %d\n", byte, c_num);
+		if(c_num > 1 || zu.flag.is_zip)
 		{
 			zu.byte = 0;
 			zu.flag.is_zip = 1;
 			zu.flag.is_short = 0;
 			zu.flag.num = c_num;
-			zbuffer[j++] = ~zu.byte;
-			zbuffer[j] = ~buffer[i];
-		}
-		else if(zu.flag.is_zip)
-		{
-			zu.byte = 0;
-			zu.flag.is_zip = 1;
-			zu.flag.is_short = 0;
-			zu.flag.num = c_num;
-			zbuffer[j++] = ~zu.byte;
-			zbuffer[j] = ~buffer[i];
+			zbuffer[j++] = zu.byte;
+			zbuffer[j] = byte;
 		}
 		else
 		{
-			zbuffer[j] = ~buffer[i];
+			zbuffer[j] = byte;
 		}
 		j++;
 		i++;
@@ -94,25 +87,40 @@ int zip(char *buffer, int len, char *zbuffer)
 	return j;
 }
 
-int unzip(char *zbuffer, int zlen, char *buffer)
+int unzip(char *zbuffer, int zlen, char *buffer, char *last)
 {
 	int i = 0, j = 0;
 	int c_num;
 	zunit zu;
+	
+	if(*last)
+	{
+		zu.byte = *last;
+		//printf("%c %d\n", zbuffer[0], zu.flag.num);
+		for(c_num=zu.flag.num;c_num > 0;c_num--)
+			buffer[j++] = zbuffer[0];
+		i++;
+	}
+	*last = 0;
+	
 	while(i < zlen)
 	{
-		zu.byte = ~zbuffer[i];
+		zu.byte = zbuffer[i];
 		if(!zu.flag.is_zip)
 		{
 			//printf("%c\n", zu.byte);
-			buffer[j++] = zu.byte; 
+			buffer[j++] = zu.byte;
+			i++;
+		}else if(i == zlen - 1)
+		{
+			*last = zu.byte;
 			i++;
 		}
 		else
 		{
 			//printf("%c %d\n", zbuffer[i+1], zu.flag.num);
 			for(c_num=zu.flag.num;c_num > 0;c_num--)
-				buffer[j++] = ~zbuffer[i+1];
+				buffer[j++] = zbuffer[i+1];
 			i += 2;
 		}
 	}
@@ -156,6 +164,7 @@ int funzip(char *fzipname, char *fname)
 {
 	char zbuffer[BUFFER_SIZE/32];
 	char buffer[BUFFER_SIZE];
+	char last = 0;
 	int len;
 	long inlen=0, outlen=0;
 	FILE *f, *fzip;
@@ -173,7 +182,7 @@ int funzip(char *fzipname, char *fname)
 	while((len = fread(zbuffer, sizeof(char), BUFFER_SIZE/32, fzip)) > 0)
 	{
 		inlen += len;
-		len = unzip(zbuffer, len, buffer);
+		len = unzip(zbuffer, len, buffer, &last);
 		outlen += len;
 		fwrite(buffer, sizeof(char), len, f);
 	}
