@@ -148,7 +148,7 @@ int fzip(char *fname, char *fzipname)
 	
 	fclose(f);
 	fclose(fzip);
-	printf("zip %ld -> %ld bytes", inlen, outlen);
+	printf("zip %ld -> %ld bytes\n", inlen, outlen);
 	return 0;
 }
 
@@ -180,7 +180,7 @@ int funzip(char *fzipname, char *fname)
 	
 	fclose(f);
 	fclose(fzip);
-	printf("unzip %ld -> %ld bytes", inlen, outlen);
+	printf("unzip %ld -> %ld bytes\n", inlen, outlen);
 	return 0;
 }
 
