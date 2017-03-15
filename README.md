@@ -1,10 +1,10 @@
-#HZY_ZIP
+# HZY_ZIP #  
 This is a compression program using c language. It is so simple and a little stupid. Just for fun.
 
-##Compile
+## Compile ##  
 `gcc hzy_zip.c -o hzy_zip` or `make`
 
-##Usage
+## Usage ##  
 ```
 Usage: hzy_zip [-u] -f <in_file> -o <out_file>
 Options:
